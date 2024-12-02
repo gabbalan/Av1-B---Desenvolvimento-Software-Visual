@@ -3,24 +3,17 @@ module.exports = (sequelize, DataTypes) => {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true
+            primaryKey: true,
         },
         userId: {
             type: DataTypes.INTEGER,
-            allowNull: true
-        }
+            allowNull: true,
+        },
     });
 
-    Cart.associate = function(models) {
-        Cart.belongsTo(models.User, {
-            foreignKey: 'userId',
-            as: 'user',
-            allowNull: true
-        });
-        Cart.hasMany(models.CartItem, {
-            foreignKey: 'cartId',
-            as: 'items'
-        });
+    Cart.associate = models => {
+        Cart.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+        Cart.hasMany(models.CartItem, { foreignKey: 'cartId', as: 'items' });
     };
 
     return Cart;

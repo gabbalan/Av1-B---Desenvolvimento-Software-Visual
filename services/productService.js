@@ -1,66 +1,48 @@
-const db = require('../models');
+const { Op } = require('sequelize');
 
 class ProductService {
     constructor(ProductModel) {
         this.Product = ProductModel;
     }
 
-    async create(nome, descricao, preco, estoque) {
-        try {
-            const newProduct = await this.Product.create({
-                nome: nome,
-                descricao: descricao,
-                preco: preco,
-                estoque: estoque
-            });
-            return newProduct ? newProduct : null;
-        }
-        catch (error) {
-            throw error;
-        }
+    async create(data) {
+        return await this.Product.create(data);
     }
 
     async findAll() {
-        console.log('Método findAll do serviço chamado');
-        try {
-            const AllProducts = await this.Product.findAll();
-            console.log('Produtos retornados do banco:', AllProducts);
-            return AllProducts ? AllProducts : null;
-        }
-        catch (error) {
-            console.error('Erro no serviço:', error);
-            throw error;
-        }
+        return await this.Product.findAll();
     }
 
-    // Método para atualizar um produto
-    async update(id, productData) {
-        try {
-            const Product = await this.Product.findByPk(id);
-            if (Product) {
-                await Product.update(productData);
-                return Product;
-            }
-            return null;
-        }
-        catch (error) {
-            throw error;
-        }
+    async findById(id) {
+        return await this.Product.findByPk(id);
     }
 
-    // Método para deletar um produto
+    async findByName(nome) {
+        return await this.Product.findAll({
+            where: {
+                nome: {
+                    [Op.like]: `%${nome}%`, // Busca pelo nome utilizando like
+                },
+            },
+        });
+    }
+
+    async update(id, data) {
+        const product = await this.Product.findByPk(id);
+        if (product) {
+            await product.update(data);
+            return product;
+        }
+        return null;
+    }
+
     async delete(id) {
-        try {
-            const Product = await this.Product.findByPk(id);
-            if (Product) {
-                await Product.destroy();
-                return true;
-            }
-            return false;
+        const product = await this.Product.findByPk(id);
+        if (product) {
+            await product.destroy();
+            return true;
         }
-        catch (error) {
-            throw error;
-        }
+        return false;
     }
 }
 

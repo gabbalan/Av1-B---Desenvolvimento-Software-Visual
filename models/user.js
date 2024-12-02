@@ -1,35 +1,32 @@
-const Sequelize = require('sequelize');
-
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true
+            primaryKey: true,
         },
         email: {
-            type: Sequelize.STRING,
-            allowNull: false
-            // Remova a linha 'unique: true,'
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         data_nasc: {
-            type: Sequelize.DATE,
-            allowNull: true
+            type: DataTypes.DATE,
+            allowNull: true,
         },
         password: {
-            type: Sequelize.STRING,
-            allowNull: false
-        }
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     });
 
-    User.associate = function(models) {
+    User.associate = (models) => {
         User.hasOne(models.Cart, {
             foreignKey: {
                 name: 'userId',
-                allowNull: true
+                allowNull: true,
             },
             onDelete: 'SET NULL',
-            as: 'cart'
+            as: 'cart',
         });
     };
 

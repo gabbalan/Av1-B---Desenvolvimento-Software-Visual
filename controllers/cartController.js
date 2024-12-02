@@ -1,41 +1,49 @@
+const CartService = require('../services/cartService');
+const db = require('../models');
+
+const cartService = new CartService(db);
+
 class CartController {
-    constructor(CartService) {
-      this.cartService = CartService;
-    }
-  
     async addToCart(req, res) {
-      const { userId, productId, quantidade } = req.body;
-      try {
-        const cartItem = await this.cartService.addToCart(userId, productId, quantidade);
-        res.status(201).json(cartItem);
-      } catch (error) {
-        res.status(400).json({ error: error.message });
-      }
+        const { userId, productId, quantidade } = req.body;
+        try {
+            const cartItem = await cartService.addItem(userId, productId, quantidade);
+            res.status(201).json(cartItem);
+        } catch (error) {
+            console.error('Erro ao adicionar item ao carrinho:', error.message);
+            res.status(400).json({ error: error.message });
+        }
     }
-  
+
     async removeFromCart(req, res) {
         const { userId, cartItemId } = req.params;
+        if (!userId || !cartItemId) {
+            return res.status(400).json({ error: 'Parâmetros inválidos.' });
+        }
+
         try {
-          const result = await this.cartService.removeFromCart(userId, cartItemId);
-          res.status(200).json(result);
+            const result = await cartService.removeItem(userId, cartItemId);
+            res.status(200).json(result);
         } catch (error) {
-          res.status(400).json({ error: error.message });
+            console.error('Erro ao remover item do carrinho:', error.message);
+            res.status(400).json({ error: error.message });
         }
     }
-  
+
     async getCart(req, res) {
-        const userId = req.params.userId;
+        const { userId } = req.params;
+        if (!userId) {
+            return res.status(400).json({ error: 'Parâmetro userId é obrigatório.' });
+        }
+
         try {
-          const cart = await this.cartService.getCart(userId);
-          if (cart) {
+            const cart = await cartService.getCart(userId);
             res.status(200).json(cart);
-          } else {
-            res.status(404).json({ error: 'Carrinho não encontrado' });
-          }
         } catch (error) {
-          res.status(400).json({ error: error.message });
+            console.error('Erro ao buscar o carrinho:', error.message);
+            res.status(400).json({ error: error.message });
         }
     }
-  }
-  
-  module.exports = CartController;
+}
+
+module.exports = new CartController();

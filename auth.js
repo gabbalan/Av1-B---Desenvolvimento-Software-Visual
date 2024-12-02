@@ -1,6 +1,6 @@
 //auth.jc 
 const jwt = require('jsonwebtoken')
-const secret = '123'; //Ponto de vunerabilidade porque a chave secreta não acessivel
+const secret = process.env.JWT_SECRET || '123'; //Ponto de vunerabilidade porque a chave secreta não acessivel
 //Recomenda-se gravar em variaveis de ambiente do sistema operacional
 
 //Metodo para gerar o tokenjwt

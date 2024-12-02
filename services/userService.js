@@ -1,82 +1,67 @@
 // ./services/userService.js
 const auth = require('../auth');
 const bcrypt = require('bcrypt');
-var round_salts = 10;
-
 const db = require('../models');
 
-class UserService{
-    constructor(UserModel){
+const round_salts = 10;
+
+class UserService {
+    constructor(UserModel) {
         this.User = UserModel;
     }
 
-    async create(email, data_nasc, password){
-        try{
-            const hashpassword = await  bcrypt.hash(password, parseInt(round_salts));
+    async create(email, data_nasc, password) {
+        try {
+            const hashPassword = await bcrypt.hash(password, parseInt(round_salts));
             const newUser = await this.User.create({
-                email:email,
-                data_nasc:data_nasc,
-                password:hashpassword
+                email: email,
+                data_nasc: data_nasc,
+                password: hashPassword,
             });
-            return newUser? newUser : null;
-            
-        }
-        catch (error){
+            return newUser ? newUser : null;
+        } catch (error) {
+            console.error('Erro ao criar usuário:', error);
             throw error;
         }
     }
 
-    //Metodo para retornar todos os usuarios
-    async findAll()
-    {
-        try{
+    async findAll() {
+        try {
             const AllUsers = await this.User.findAll();
-            return AllUsers? AllUsers : null;
-        }
-        catch(error){
+            return AllUsers ? AllUsers : null;
+        } catch (error) {
+            console.error('Erro ao buscar todos os usuários:', error);
             throw error;
         }
-        
     }
 
-    //metodo para retornar o usuario pelo id
-    async findById(id){
-        try{
+    async findById(id) {
+        try {
             const User = await this.User.findByPk(id);
-            return User? User: null;
-
-        }
-        catch(error){
+            return User ? User : null;
+        } catch (error) {
+            console.error('Erro ao buscar usuário por ID:', error);
             throw error;
         }
     }
 
-    //metodo para login
-    async  login(email, password){
-        try{
-            const User = await this.User.findOne({
-                where : {email}
-            });
-            //Se o usuario existe, ver se a senha esta ok
-            if(User){
-
-                //Comparar a senha
-                if(await bcrypt.compare(password, User.password)){
-                    //Gerar o token do user
+    async login(email, password) {
+        try {
+            const User = await this.User.findOne({ where: { email } });
+            if (User) {
+                if (await bcrypt.compare(password, User.password)) {
                     const token = await auth.generateToken(User);
                     User.dataValues.Token = token;
-                    User.dataValues.password = '';
-                }
-                else{
-                    throw new Error ('Senha invalida');
+                    User.dataValues.password = ''; // Remove a senha antes de retornar
+                } else {
+                    throw new Error('Senha inválida.');
                 }
             }
-            return User? User:null;
-        }
-        catch(error){
+            return User ? User : null;
+        } catch (error) {
+            console.error('Erro no login:', error);
             throw error;
         }
-
     }
 }
 
